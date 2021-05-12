@@ -23,6 +23,7 @@ Feature: Reserve Plan List Page
 	Background: Guest user can not use premium plan and dinner plan and ecomical plan different from member.
 
   Scenario: Guest user case
+    		Given The mobile device is chosen in "Nexus_4_API_29"
     		When The mobile browser is started in English mode
         Given The webDriver is chosen in "Chrome"
 #open Hotel Planisphere TOP page
@@ -57,6 +58,7 @@ Feature: Reserve Plan List Page
 
 
   Scenario: Normal member case
+    		Given The mobile device is chosen in "Nexus_6_API_29"
     		When The mobile browser is started in English mode
         Given The webDriver is chosen in "Chrome"
 #open Hotel Planisphere TOP page
@@ -98,6 +100,7 @@ Feature: Reserve Plan List Page
 
   Scenario: Premium member case
     		When The mobile browser is started in English mode
+    		Given The mobile device is chosen in "Nexus_10_API_29"
         Given The webDriver is chosen in "Chrome"
 #open Hotel Planisphere TOP page
         Given Page open "https://hotel.testplanisphere.dev/en-US/index.html"

@@ -20,6 +20,7 @@
 Feature: Hotel Planisphere Member Regist Feature.
 
     Scenario: open the regist page with Android Emulator.
+    		Given The mobile device is chosen in "Nexus_4_API_29"
     		When The mobile browser is started in English mode
         Given The webDriver is chosen in "Chrome"
 #open Hotel Planisphere TOP page

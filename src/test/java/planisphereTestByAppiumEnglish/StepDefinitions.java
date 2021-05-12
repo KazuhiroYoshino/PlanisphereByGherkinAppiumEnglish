@@ -19,14 +19,32 @@ public class StepDefinitions {
     private int termValueWeekEnd;
     private String comment144 = "123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC123456789ABC12345678";
 
+    private static String mobileDevice;
     private static String mobileBrowserType;
     private static String mobileUrl;
     private static String id;
     private static String passwd;
 
+/**
+ * 会員登録済みユーザーは、マイページから氏名と電話番号を確認できる
+ * ただし、電話番号は任意
+ */
+    private static String memberName;
+    private static String memberTel;
+    private static String memberMail;
+
 //    public void WebSteps(WebConnector connector) {
 //        this.connector = connector;
 //    }
+
+/**
+ * 使用するデバイスを選ぶ
+ */
+    @Given("^The mobile device is chosen in \"([^\"]*)\"$")
+    public void selectDevice(String device) {
+     	mobileDevice = device;
+      	connector.selectDevice(device);
+    }
 
 /**
  * 使用するWebドライバを指定する
@@ -76,6 +94,19 @@ public class StepDefinitions {
     @Then("画面更新$")
     public void refresh() throws InterruptedException {
     	connector.refresh();
+    }
+
+    @When("^device orientation set in \"([^\"]*)\"$")
+    public void deviceLandscape(String rotation) throws InterruptedException {
+    	String deviceOrientation = "landscape";
+
+    	if(rotation.equals("landscape")) {
+    		deviceOrientation = "landscape";
+    	}
+    	if(rotation.equals("portrait")) {
+    		deviceOrientation = "portrait";
+    	}
+    	connector.setDeviceRotation(deviceOrientation);
     }
 
     @When("\"([^\"]*)\"で指定できるカレンダー表示を消して")
@@ -272,6 +303,26 @@ public class StepDefinitions {
     	connector.cssButtonClickAndPopUp(commandLocater);
     }
 
+/**
+ * 画面から取得系
+ * @throws InterruptedException
+ */
+    @And("^get mail address and username and telephonenumber$")
+    public void getMemberInfo() throws InterruptedException {
+      	String selector;
+
+       	selector = "username";
+       	memberName = connector.getString(selector);
+
+       	selector = "email";
+       	memberMail = connector.getString(selector);
+
+       	selector = "tel";
+       	memberTel = connector.getString(selector);
+       	if(memberTel.equals("not answered")) {
+       		memberTel = null;
+       	}
+    }
 
 /** 入力系 */
 
@@ -341,39 +392,39 @@ public class StepDefinitions {
 
     	switch(startDay) {
     	case("Sunday"):
-            connector.sunday(commandLocater);
+            connector.sundayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Monday"):
-            connector.monday(commandLocater);
+            connector.mondayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Tuesday"):
-            connector.tuesday(commandLocater);
+            connector.tuesdayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Wednesday"):
-            connector.wednesday(commandLocater);
+            connector.wednesdayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Thursday"):
-            connector.thursday(commandLocater);
+            connector.thursdayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Friday"):
-            connector.friday(commandLocater);
+            connector.fridayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
     	case("Saturday"):
-            connector.saturday(commandLocater);
+            connector.saturdayEN(commandLocater);
             weekEnd = 0;
-            connector.dateFromSet();
+            connector.dateFromSetEN();
             break;
         default:
     	}
@@ -390,7 +441,7 @@ public class StepDefinitions {
         termValueWeekEnd = weekEnd;
         int term = termValue + termValueWeekEnd;
         connector.inputAndWait(commandLocater, termText);
-        connector.termSet(term);
+        connector.termSetEN(term);
     }
 
     @When("^user inputs \"([^\"]*)\" as guests$")
@@ -424,9 +475,13 @@ public class StepDefinitions {
 
     @When("^user inputs \"([^\"]*)\" as Name$")
     public void nameSetting(String name) throws InterruptedException {
-    	String commandLocater = "username";
+    	String selector = "username";
+    	String existChr;
 
-    	connector.inputAndWait(commandLocater, name);
+    	existChr = connector.getText(selector);
+    	if(existChr.length() == 0) {
+    		connector.inputAndWait(selector, name);
+    	}
     }
 
     @And("^user selects \"([^\"]*)\" and inputs \"([^\"]*)\" as Telephone number or inputs \"([^\"]*)\" as mail address$")
@@ -434,15 +489,25 @@ public class StepDefinitions {
     	String selector1 = "contact";
     	String selector2 = "tel";
     	String selector3 = "email";
+    	String existChr;
 
     	connector.dropDownSelect(selector1, contact);
     	contactType = contact;
     	Thread.sleep(1000);
-    	if(tel.length() != 0) {
-    		connector.inputAndWait(selector2, tel);
-    	}
-    	if(email.length() != 0) {
-    		connector.inputAndWait(selector3, email);
+    	switch(contact) {
+    	case("By telephone"):
+    		existChr = connector.getText(selector2);
+    		if((tel.length() != 0)&&(existChr.length() == 0)) {
+    			connector.inputAndWait(selector2, tel);
+    		}
+    		break;
+    	case("By email"):
+    		existChr = connector.getText(selector3);
+        	if((email.length() != 0)&&(existChr.length() == 0)) {
+        		connector.inputAndWait(selector3, email);
+        	}
+    		break;
+    	default:
     	}
     }
 
@@ -533,10 +598,8 @@ public class StepDefinitions {
 
     @When("年月日要素\"([^\"]*)\"に\"([^\"]*)\"を入力する$")
     public void birthdayInput(String selector, String birthday) throws InterruptedException {
-    	connector.birthdayInput(selector, birthday);
+    	connector.birthdayInputEN(selector, birthday);
     }
-
-
 
 /** チェックボックスのクリックイベント
  * @throws InterruptedException */
@@ -714,24 +777,28 @@ public class StepDefinitions {
     	String selector = "total-bill";
     	boolean res;
 
-        res = connector.testPrice(selector, Double.valueOf(price));
+        res = connector.testPriceEN(selector, Double.valueOf(price));
         if(res == true) {
         	assertTrue(res);
         }else {
         	connector.destroySelenium();
-        	Thread.sleep(2000);
+        	Thread.sleep(5000);
         	connector.setMobileLangEnglish();
+        	connector.selectDevice(mobileDevice);
         	connector.rebootBrowser(mobileBrowserType,mobileUrl);
         	connector.btnClickAndWait_CSS("span.navbar-toggler-icon");
+        	Thread.sleep(3000);
+
         	if(id != null) {
         		connector.linkClickAndWait("Login");
-        		Thread.sleep(1000);
+        		Thread.sleep(2000);
         		selector = "email";
         		connector.inputAndWait(selector, id);
         		selector = "password";
         		connector.inputAndWait(selector, passwd);
             	selector = "login-button";
             	connector.btnClickAndWait_ID(selector);
+            	Thread.sleep(3000);
             	connector.btnClickAndWait_CSS("span.navbar-toggler-icon");
         	}
         	Thread.sleep(2000);
@@ -815,7 +882,7 @@ public class StepDefinitions {
     	String selector = "term";
 
     	try {
-        	assertTrue(connector.testTerm(selector, termValue + termValueWeekEnd));
+        	assertTrue(connector.testTermEN(selector, termValue + termValueWeekEnd));
     	}catch(Exception e) {
     		System.out.println(connector.dateFrom);
     		System.out.println(connector.dateTo);
@@ -896,6 +963,9 @@ public class StepDefinitions {
     public void testUsername(String username) throws InterruptedException {
     	String selector = "username";
 
+    	if(username.length() == 0) {
+    		username = connector.username;
+    	}
 //    	username = username + "様";
     	assertTrue(connector.testText(selector, username));
     }
@@ -913,10 +983,16 @@ public class StepDefinitions {
     		assertTrue(connector.testText(selector, contactText));
     		break;
     	case("By telephone"):
+    		if(telText.length() == 0) {
+    			telText = connector.tel;
+    		}
     		contactText = "Tel" + ": " + telText;
 			assertTrue(connector.testText(selector, contactText));
     		break;
     	case("By email"):
+    		if(emailText.length() == 0) {
+    			emailText = connector.email;
+    		}
     		contactText = "Email" + ": " + emailText;
 			assertTrue(connector.testText(selector, contactText));
     		break;
